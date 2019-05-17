@@ -1,0 +1,18 @@
+{
+	"urls": [
+		"https://vndb.org/v25144",
+		"https://vndb.org/v23742",
+		"https://vndb.org/v20802"
+	],
+	"outputDir": "imgs3/",
+	"recursive": true,
+	"path": [
+		"/^https:\\/\\/vndb\\.org\\/v\\d+$/",
+		"/^https:\\/\\/s\\.vndb\\.org\\/sf\\/\\d+\\/.+$/"
+	],
+	"imageNamePatterns": [
+		"/^\\d+\\.\\w+$/"			
+	],
+	"minImageSize": 100000
+	
+}

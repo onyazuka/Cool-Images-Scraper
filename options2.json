@@ -1,0 +1,18 @@
+{
+	"urls": [
+		"https://wallpaperscraft.ru/catalog/anime/page2",
+		"https://wallpaperscraft.ru/catalog/anime/page3"
+	],
+	"outputDir": "imgs2/",
+	"recursive": true,
+	"path": [
+		"/https:\\/\\/wallpaperscraft\\.ru\\/catalog\\/anime\\/page\\d+/",
+		"/https:\\/\\/wallpaperscraft\\.ru\\/wallpaper\\/[a-zA-Z_]+\\d{1,20}/",
+		"/https:\\/\\/wallpaperscraft\\.ru\\/download\\/[\\a-zA-Z_]+\\d{1,20}\\/(?:1920|1680|1440|1280)x(?:1080|1200|1050|900)/",
+		"/https:\\/\\/images\\.wallpaperscraft\\.ru\\/image\\/.+/"
+	],
+	"imageNamePatterns": [
+		"/(?:1920|1680|1440|1280)x(?:1080|1200|1050|900)/"			
+	]
+	
+}
