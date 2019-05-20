@@ -22,19 +22,19 @@
       return self::$instance;
     }
 
-    public function isUrlVisited($url) {
+    public function isUrlVisited(string $url) {
       return in_array($url, $this->urls);
     }
 
-    public function isImageExists($imgName) {
+    public function isImageExists(string $imgName) {
       return in_array($imgName, $this->imgs);
     }
 
-    public function setUrlVisited($url) {
+    public function setUrlVisited(string $url) {
       $this->urls[] = $url;
     }
 
-    public function setImgExists($img) {
+    public function setImgExists(string $img) {
       $this->imgs[] = $img;
     }
 

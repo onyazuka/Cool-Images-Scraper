@@ -15,7 +15,7 @@
       $this->xpath->registerNamespace('xhtml', 'http://www.w3.org/1999/xhtml');
     }
 
-    function xPathRequest($que) {
+    function xPathRequest(string $que) {
       return $this->xpath->query($que);
     }
 
@@ -23,7 +23,7 @@
       Not all utf8 characters are valid in xml.
       So we need to replace some of them.
     */
-    function utf8ForXml($string)
+    function utf8ForXml(string $string)
     {
         return preg_replace ('/[^\x{0009}\x{000a}\x{000d}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}]+/u', ' ', $string);
     }

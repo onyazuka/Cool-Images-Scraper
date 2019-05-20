@@ -4,6 +4,7 @@
   }
   include_once "xml.php";
   include_once "lookup.php";
+  include_once "utils.php";
 
   // WARNING!!! Don't forget about COOKIES!
 
@@ -14,7 +15,7 @@
     Arguments:
       argv[1] - options
 
-    List of possible image scrapper options:
+    List of possible image scraper options:
       (Already done):
       - Output dir(argv[2])
       - recursive [BOOL] - if not set, CONFLICTS with depth, whiteList, blackList, path
@@ -27,8 +28,10 @@
       - maxImageSize [NUMERIC] - CONDITION maxImageSize >= minImageSize && maxImageSize >= 0
       - minImageSize [NUMERIC] - CONDITION maxImageSize >= minImageSize && minImageSize >= 0
       - fileRewrite [BOOL]
-      (Not done):
-    - createDir [ONE OF 'simple' OR 'recursive'] - if 'simple', tries to create directory only on one level, if 'recursive' - on multiple
+    (Not done):
+      - initCookies [ARRAY]
+      - useCookiesStorage [BOOL]
+      - createDir [ONE OF 'simple' OR 'recursive'] - if 'simple', tries to create directory only on one level, if 'recursive' - on multiple
 
   */
   class ImageScraper {
@@ -40,13 +43,36 @@
     private $lookup;
     private $curDepth = 0;
     
-    public function __construct($_args) {
+    public function __construct(array $_args) {
       $this->parseArgs($_args);
       $this->checkOptions();
       $this->lookup = LookupDict::get();
     }
 
-    protected function checkIfUrlPasses($url) {
+    protected function checkIfImageOkToSave(string $filename, array $urlInfo) {
+      // if image file exists - doing nothing
+      if($this->lookup->isImageExists($filename)) return false;
+      
+      // checking min and max sizes
+      if(isset($this->options['minImageSize']) && 
+          $urlInfo['download_content_length'] < $this->options['minImageSize']) {
+        return false;
+      }
+      if(isset($this->options['maxImageSize']) && 
+          $urlInfo['download_content_length'] > $this->options['maxImageSize']) {
+        return false;
+      }
+
+      if (isset($this->options['imageNamePatterns'])) {
+        foreach ($this->options['imageNamePatterns'] as $namePattern) {
+          if (preg_match($namePattern, $filename)) return true;
+        }
+        return false;
+      }
+      else return true;
+    }
+
+    protected function checkIfUrlPasses(string $url) {
 
       // checking if visited
       if ($this->lookup->isUrlVisited($url)) return false;
@@ -147,7 +173,7 @@
     /*
       Returns $args object
     */
-    protected function parseArgs($argv) {
+    protected function parseArgs(array $argv) {
       if(count($argv) !== 2) {
         die("Invalid args\nUsage: script.php options_file");
       } 
@@ -159,7 +185,7 @@
     /*
       Returns true if $img is an image
     */
-    protected function tryProcessImage($imgUrl) {
+    protected function tryProcessImage(string $imgUrl) {
       list($header, $headerInfo) = load_with_curl($imgUrl, "HEAD");
       if (preg_match("/image.*/" , $headerInfo['content_type']))
       {
@@ -174,14 +200,15 @@
       Should be always called instead of direct 'processPage' call.
       Manages curDepth, acts as wrapper.
     */
-    protected function processPageWrapper($url) {
+    protected function processPageWrapper(string $url) {
       $this->curDepth += 1;
       $this->processPage($url);
       $this->curDepth -= 1;
     }
 
-    protected function processPage($url) {    
+    protected function processPage(string $url) {    
       if (!$this->checkIfUrlPasses($url)) {
+        // cannot do it before, because checKIfUrlPasses also checks if page is visited
         $this->lookup->setUrlVisited($url);
         return;
       };
@@ -192,6 +219,7 @@
       print "Visiting: " . $url . "\n";
 
       if ($this->tryProcessImage($url)) {
+        // processed
         return;
       }
       else {
@@ -265,30 +293,11 @@
     }
 
 
-    protected function saveImage($url, $urlInfo) {
-      // checking min and max sizes
-      if(isset($this->options['minImageSize']) && 
-          $urlInfo['download_content_length'] < $this->options['minImageSize']) {
-        return;
-      }
-      if(isset($this->options['maxImageSize']) && 
-          $urlInfo['download_content_length'] > $this->options['maxImageSize']) {
-        return;
-      }
-
-      $patternOk = false;
-
+    protected function saveImage(string $url, array $urlInfo) {
       $filename = getFileNameByUrl($url);
-      if (isset($this->options['imageNamePatterns'])) {
-        foreach ($this->options['imageNamePatterns'] as $namePattern) {
-          if (preg_match($namePattern, $filename)) $patternOk = true;
-        }
-      }
-
-      if (!isset($this->options['imageNamePatterns']) || $patternOk) {
-        $fullPathName = $this->outputDir . $filename;
-        // if image file exists - doing nothing
-        if($this->lookup->isImageExists($filename)) return;
+      $fullPathName = $this->outputDir . $filename;
+      
+      if ($this->checkIfImageOkToSave($filename, $urlInfo)) {
         if(file_exists($fullPathName)) {
           // fileRewrite options is not set
           if(!(isset($this->options['fileRewrite']) && 
@@ -311,90 +320,6 @@
         return;
       }
     }
-  }
-
-  function checkIsSetAndHasType($context, $val, $checkFunc) {
-    if(isset($context[$val]) && !$checkFunc($context[$val])) {
-      die("checkIsSetAndHasType() - invalid $val argument type, condition $checkFunc is not ok");
-    } 
-  }
-
-  // if url matches to at least on re from blacklist, returns false
-  function checkReBlackList($url, $blackList) {
-    foreach($blackList as $blackre) {
-      if (preg_match($blackre, $url)) return false;
-    }
-    return true;
-  }
-  
-  // if url not matches to any re from white list, returns false
-  function checkReWhiteList($url, $whitelist) {
-    foreach($whitelist as $whitere) {
-      if (checkReWhite($url, $whitere)) return true;
-    }
-    return false;
-  } 
-
-  function checkReWhite($url, $whitere) {
-    if (preg_match($whitere, $url)) return true;
-  }
-
-
-  function getFileNameByUrl($url) {
-    return array_slice(explode('/', $url), -1)[0];
-  }
-
-
-  function isUrlRelative($url) {
-    return !preg_match('#^\w+://#', $url);
-  }
-
-  function httpHeaderToArray($header) {
-    $strings = explode("\n", $header);
-    $res = array();
-    foreach ($strings as $str) {
-      $keyval = explode(':', $str);
-      if(count($keyval) !== 2) continue;
-      $res[trim($keyval[0])] = trim($keyval[1]);
-    }
-    return $res;
-  }
-
-
-  function load_with_curl($url, $method="GET") {
-    $c = curl_init($url);
-
-    $customHeaders = [];
-    $customHeaders[] = "Accept-Encoding: identity";
-
-    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($c, CURLOPT_HTTPHEADER, $customHeaders);
-    if ($method == 'GET') {
-      // follow redirects
-      curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
-    }
-    else if ($method == 'HEAD') {
-      // not include body
-      curl_setopt($c, CURLOPT_NOBODY, true);
-      //include header
-      curl_setopt($c, CURLOPT_HEADER, true);
-    }
-    $response = curl_exec($c);
-    return array($response, curl_getinfo($c));
-  }
-
-
-  function readFileGetJson($fname) {
-    if(!file_exists($fname)) {
-      throw new Exception("readFileGetJson() - file $fname not exists");
-    }
-    if(($fileContents = file_get_contents($fname)) === false) {
-      throw new Exception("readFileGetJson() - cannot read file $fname");
-    }
-    if (!$fileJson = json_decode($fileContents, true)) {
-      throw new Exception("readFileGetJson() - file $fname has invalid json format.");
-    } 
-    return $fileJson;
   }
 
 
