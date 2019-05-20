@@ -1,0 +1,3 @@
+Cookies support - for example, on wall.alphacoders default sorting is by rating, and if we change order by, say, newest, than this value will be stored in cookies, so we can get unexpected result later.
+
+Whitelist and blacklist together are not a conflict, BUT we must also check if the same value is not contained in both lists.
