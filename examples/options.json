@@ -3,7 +3,7 @@
 		"https://wall.alphacoders.com/by_category.php?id=3&name=Anime+Wallpapers&page=10",
 		"https://wall.alphacoders.com/by_category.php?id=3&name=Anime+Wallpapers&page=11"
 	],
-	"outputDir": "imgs/",
+	"outputDirs": "../files/imgs/",
 	"recursive": true,
 	"path": [
 		"/https:\\/\\/wall\\.alphacoders\\.com\\/by_category\\.php\\?id=3&name=Anime\\+Wallpapers&page=1[0-1]/",
@@ -12,6 +12,9 @@
 	],
 	"imageNamePatterns": [
 		"/^\\d+\\.\\w+$/"			
-	]
-	
+	],
+	"initCookies": {
+		"Sorting": "newest"
+	},
+	"cookieJar": "../files/jar.txt"
 }

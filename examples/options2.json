@@ -3,7 +3,7 @@
 		"https://wallpaperscraft.ru/catalog/anime/page2",
 		"https://wallpaperscraft.ru/catalog/anime/page3"
 	],
-	"outputDir": "imgs2/",
+	"outputDirs": "imgs2/",
 	"recursive": true,
 	"path": [
 		"/https:\\/\\/wallpaperscraft\\.ru\\/catalog\\/anime\\/page\\d+/",

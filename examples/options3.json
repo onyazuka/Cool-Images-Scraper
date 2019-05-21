@@ -4,7 +4,7 @@
 		"https://vndb.org/v23742",
 		"https://vndb.org/v20802"
 	],
-	"outputDir": "imgs3/",
+	"outputDirs": "imgs3/",
 	"recursive": true,
 	"path": [
 		"/^https:\\/\\/vndb\\.org\\/v\\d+$/",

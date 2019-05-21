@@ -25,7 +25,15 @@
     function checkReWhite(string $url, $whitere) {
       if (preg_match($whitere, $url)) return true;
     }
-  
+
+    function cookiesArrayToHttpCookies($cookies) {
+      $cookiesArr = [];
+      // imploding key-value array to list
+      foreach ($cookies as $key => $val) {
+        $cookiesArr[] = "$key=$val";
+      }
+      return implode('; ', $cookiesArr);
+    }
   
     function getFileNameByUrl(string $url) {
       return array_slice(explode('/', $url), -1)[0];
@@ -48,7 +56,12 @@
     }
   
   
-    function load_with_curl(string $url, string $method="GET") {
+    function load_with_curl(array $options) {
+      $url = $options['url'];
+      $method = $options['method'];
+      $cookies = $options['cookies'];
+      if(!isset($url) || !isset($method)) throw new Error("load_with_curl() - url and method must be set");
+
       $c = curl_init($url);
   
       $customHeaders = [];
@@ -56,6 +69,13 @@
   
       curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($c, CURLOPT_HTTPHEADER, $customHeaders);
+      if(isset($cookies)) {
+        $cookiesArr = [];
+        foreach ($cookies as $key => $val) {
+          $cookiesArr[] = "$key=$val";
+        }
+        curl_setopt($c, CURLOPT_COOKIE, implode('; ', $cookiesArr));
+      } 
       if ($method == 'GET') {
         // follow redirects
         curl_setopt($c, CURLOPT_FOLLOWLOCATION, true);
