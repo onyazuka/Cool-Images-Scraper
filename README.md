@@ -7,7 +7,7 @@ Php script for scraping web images.
 ## Usage
 You should pass in script's argv location of options file, which should be written in json:
 
-imgscrp.php options.json
+main.php options.json
 
 ## Options
 - urls [array], MANDATORY - list of urls to scrap from;
