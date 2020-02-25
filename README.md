@@ -5,7 +5,7 @@ php images scraper
 Php script for scraping web images.
 
 ## Usage
-You should pass in script's argv location of options file, which should be written in json:
+The script accepts one argument(in argv) - options file(.json):
 
 main.php options.json
 
@@ -17,10 +17,10 @@ main.php options.json
 - whiteList [array of regexp] - patterns of allowed urls;
 - blackList [array of regexp] - patterns of disallowed urls;
 - path [array of regex] - pattern of scraper's work path. If set, the scraper works in recursive mode, with depth = count($options['path']). 
-  So, on first level of recursion, path[0] is used, on second path[1]...;
-- imageNamePatters [array of regex] - array of correct names of images, that can be saved;
-- maxImageSize [numeric] - if image file not satisfies this condition, it will not be saved;
-- minImageSize [numeric] - if image file not satisfies this condition, it will not be saved;
+  So, on the first level of recursion, path[0] is used, on the second - path[1]...;
+- imageNamePatters [array of regex] - array of patterns of images' names, that should be saved;
+- maxImageSize [numeric] - if an image file don't satisfies this condition, it will not be saved;
+- minImageSize [numeric] - if an image file don't satisfies this condition, it will not be saved;
 - fileRewrite [bool] - if set and true, rewrites file in 'outputDir' on conflict, else skips new file, preserving old;
 - createDirIfNotExists [string] - ONE OF 'simple' or 'recursive', creates outputDir if it not exists;
 - initCookies[array or string] - either key-value array, or string in format "remixflash=32.0.0; remixscreen_depth=24;";
@@ -28,7 +28,7 @@ main.php options.json
 - additionalHeaders [array] - must be in format array('Content-type: text/plain', 'Content-length: 100').
 
 ## Examples
-Examples of configuration files can be viewed in examples/options%.json files.
+You can view the examples of configuration files at examples/options%.json.
 
 ## Todo
 Multithread, JS support(if this can be done).
